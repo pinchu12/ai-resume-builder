@@ -1,12 +1,16 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import { db } from "./firebase.js";
+import { db, firebaseInitialized } from "./firebase.js";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// Local in-memory fallback when Firebase is not configured
+const localResumes = [];
+const generateId = () => `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 
 // Middleware - Increase payload size for images
 app.use(cors({
@@ -24,19 +28,28 @@ app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 // Health check
 app.get("/health", (req, res) => {
-  res.json({ 
-    status: "Server is running!", 
+  res.json({
+    status: "Server is running!",
     timestamp: new Date(),
-    database: "Firebase Firestore Connected"
+    database: firebaseInitialized ? "Firebase Firestore Connected" : "Local Storage Mode",
+    firebase: firebaseInitialized ? "Enabled" : "Disabled"
   });
 });
 
 // Get all resumes
 app.get("/api/resumes", async (req, res) => {
   try {
+    if (!firebaseInitialized) {
+      return res.json({
+        success: true,
+        count: localResumes.length,
+        data: localResumes
+      });
+    }
+
     const resumes = [];
     const snapshot = await db.collection("resumes").orderBy("createdAt", "desc").get();
-    
+
     snapshot.forEach(doc => {
       const data = doc.data();
       resumes.push({
@@ -46,10 +59,14 @@ app.get("/api/resumes", async (req, res) => {
         phone: data.phone,
         address: data.address,
         createdAt: data.createdAt,
-        updatedAt: data.updatedAt
+        updatedAt: data.updatedAt,
+        skills: data.skills,
+        experience: data.experience,
+        education: data.education,
+        photoPreview: data.photoPreview || null
       });
     });
-    
+
     res.json({
       success: true,
       count: resumes.length,
@@ -57,10 +74,10 @@ app.get("/api/resumes", async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching resumes:", error);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
       error: "Failed to fetch resumes",
-      message: error.message 
+      message: error.message
     });
   }
 });
@@ -68,15 +85,26 @@ app.get("/api/resumes", async (req, res) => {
 // Get single resume
 app.get("/api/resumes/:id", async (req, res) => {
   try {
+    if (!firebaseInitialized) {
+      const found = localResumes.find((resume) => resume.id === req.params.id);
+      if (!found) {
+        return res.status(404).json({
+          success: false,
+          error: "Resume not found"
+        });
+      }
+      return res.json({ success: true, data: found });
+    }
+
     const doc = await db.collection("resumes").doc(req.params.id).get();
-    
+
     if (!doc.exists) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        error: "Resume not found" 
+        error: "Resume not found"
       });
     }
-    
+
     res.json({
       success: true,
       data: {
@@ -86,10 +114,10 @@ app.get("/api/resumes/:id", async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching resume:", error);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
       error: "Failed to fetch resume",
-      message: error.message 
+      message: error.message
     });
   }
 });
@@ -154,19 +182,24 @@ app.post("/api/resumes", async (req, res) => {
       createdAt: new Date(),
       updatedAt: new Date()
     };
-    
-    const docRef = await db.collection("resumes").add(resumeData);
-    
-    console.log(`✅ Resume created: ${docRef.id}`);
-    
+
+    let savedResume;
+    if (!firebaseInitialized) {
+      const id = generateId();
+      savedResume = { id, ...resumeData };
+      localResumes.unshift(savedResume);
+      console.log(`✅ Resume created locally: ${id}`);
+    } else {
+      const docRef = await db.collection("resumes").add(resumeData);
+      savedResume = { id: docRef.id, ...resumeData };
+      console.log(`✅ Resume created: ${docRef.id}`);
+    }
+
     res.status(201).json({
       success: true,
       message: "Resume created successfully",
-      id: docRef.id,
-      data: {
-        id: docRef.id,
-        ...resumeData
-      }
+      id: savedResume.id,
+      data: savedResume
     });
   } catch (error) {
     console.error("Error creating resume:", error);
@@ -182,14 +215,14 @@ app.post("/api/resumes", async (req, res) => {
 app.put("/api/resumes/:id", async (req, res) => {
   try {
     const { name, email, phone, address, skills, experience, education, photoPreview } = req.body;
-    
+
     if (!name || !email) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        error: "Name and email are required" 
+        error: "Name and email are required"
       });
     }
-    
+
     const resumeData = {
       name: name.trim(),
       email: email.trim(),
@@ -201,11 +234,26 @@ app.put("/api/resumes/:id", async (req, res) => {
       photoPreview: photoPreview || null,
       updatedAt: new Date()
     };
-    
+
+    if (!firebaseInitialized) {
+      const index = localResumes.findIndex((r) => r.id === req.params.id);
+      if (index < 0) {
+        return res.status(404).json({ success: false, error: "Resume not found" });
+      }
+      localResumes[index] = { ...localResumes[index], ...resumeData };
+      console.log(`✅ Resume updated locally: ${req.params.id}`);
+      return res.json({
+        success: true,
+        message: "Resume updated successfully",
+        id: req.params.id,
+        data: { id: req.params.id, ...localResumes[index] }
+      });
+    }
+
     await db.collection("resumes").doc(req.params.id).update(resumeData);
-    
+
     console.log(`✅ Resume updated: ${req.params.id}`);
-    
+
     res.json({
       success: true,
       message: "Resume updated successfully",
@@ -217,10 +265,10 @@ app.put("/api/resumes/:id", async (req, res) => {
     });
   } catch (error) {
     console.error("Error updating resume:", error);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
       error: "Failed to update resume",
-      message: error.message 
+      message: error.message
     });
   }
 });
@@ -228,6 +276,20 @@ app.put("/api/resumes/:id", async (req, res) => {
 // Delete resume
 app.delete("/api/resumes/:id", async (req, res) => {
   try {
+    if (!firebaseInitialized) {
+      const index = localResumes.findIndex((r) => r.id === req.params.id);
+      if (index < 0) {
+        return res.status(404).json({ success: false, error: "Resume not found" });
+      }
+      localResumes.splice(index, 1);
+      console.log(`✅ Resume deleted locally: ${req.params.id}`);
+      return res.json({
+        success: true,
+        message: "Resume deleted successfully",
+        id: req.params.id
+      });
+    }
+
     await db.collection("resumes").doc(req.params.id).delete();
     console.log(`✅ Resume deleted: ${req.params.id}`);
     
@@ -266,7 +328,7 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-const server = app.listen(PORT, () => {
+const server= app.listen(PORT, () => {
   console.log("\n" + "=".repeat(50));
   console.log("🚀 Resume Builder API Server");
   console.log("=".repeat(50));

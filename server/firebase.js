@@ -14,14 +14,24 @@ const serviceAccount = {
   client_x509_cert_url: process.env.FIREBASE_CLIENT_CERT_URL,
 };
 
+let db = null;
+let firebaseInitialized = false;
+
 try {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-  });
-  console.log("Firebase initialized successfully");
+  if (serviceAccount.project_id && serviceAccount.private_key && serviceAccount.client_email) {
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount)
+    });
+    db = admin.firestore();
+    firebaseInitialized = true;
+    console.log("✅ Firebase initialized successfully");
+  } else {
+    console.log("⚠️ Firebase credentials are incomplete; running in Local Storage Mode");
+  }
 } catch (error) {
-  console.error("Firebase initialization error:", error);
+  console.error("Firebase initialization error:", error.message || error);
+  console.log("⚠️ Falling back to Local Storage Mode");
 }
 
-export const db = admin.firestore();
+export { db, firebaseInitialized };
 export default admin;
