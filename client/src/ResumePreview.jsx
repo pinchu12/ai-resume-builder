@@ -9,59 +9,118 @@ export default function ResumePreview({ data }) {
     if (!element) return;
 
     try {
-      const canvas = await html2canvas(element);
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff"
+      });
       const imgData = canvas.toDataURL("image/png");
 
-      const pdf = new jsPDF();
+      const pdf = new jsPDF("p", "mm", "a4");
       const imgWidth = 210;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+      
+      let heightLeft = imgHeight;
+      let position = 0;
+      
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= 297;
+
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+        heightLeft -= 297;
+      }
+
       pdf.save(`${data.name || "resume"}.pdf`);
     } catch (error) {
       console.error("Error generating PDF:", error);
+      alert("Error generating PDF. Please try again.");
     }
   };
 
+  const printResume = () => {
+    const element = document.getElementById("resume");
+    const printWindow = window.open("", "", "height=800,width=1000");
+    printWindow.document.write(element.innerHTML);
+    printWindow.document.close();
+    printWindow.print();
+  };
+
   if (!data.name) {
-    return <div className="resume-preview empty">Fill in the form to see your resume</div>;
+    return (
+      <div className="resume-preview empty">
+        <div className="empty-state">
+          <span className="empty-icon">📄</span>
+          <h3>No Resume Yet</h3>
+          <p>Fill in the form on the left to see your resume preview here</p>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="resume-preview-container">
+      <div className="preview-controls">
+        <button onClick={downloadPDF} className="btn-download" title="Download as PDF">
+          📥 Download PDF
+        </button>
+        <button onClick={printResume} className="btn-print" title="Print Resume">
+          🖨️ Print
+        </button>
+      </div>
+
       <div id="resume" className="resume">
+        {/* HEADER WITH PHOTO */}
         <div className="resume-header">
-          <h2>{data.name}</h2>
-          <div className="resume-contact">
-            {data.email && <span>{data.email}</span>}
-            {data.phone && <span> | {data.phone}</span>}
+          <div className="header-content">
+            {data.photoPreview && (
+              <div className="resume-photo">
+                <img src={data.photoPreview} alt={data.name} />
+              </div>
+            )}
+            <div className="header-text">
+              <h1>{data.name}</h1>
+              <div className="header-contact">
+                {data.email && <span>📧 {data.email}</span>}
+                {data.phone && <span>📱 {data.phone}</span>}
+                {data.address && <span>📍 {data.address}</span>}
+              </div>
+            </div>
           </div>
         </div>
 
+        {/* SKILLS SECTION */}
         {data.skills && (
           <div className="resume-section">
-            <h3>Skills</h3>
-            <p>{data.skills}</p>
+            <h2 className="section-header">💼 Skills</h2>
+            <div className="skills-list">
+              {data.skills.split(",").map((skill, index) => (
+                <span key={index} className="skill-tag">
+                  {skill.trim()}
+                </span>
+              ))}
+            </div>
           </div>
         )}
 
+        {/* EXPERIENCE SECTION */}
         {data.experience && (
           <div className="resume-section">
-            <h3>Experience</h3>
-            <p>{data.experience}</p>
+            <h2 className="section-header">🏢 Experience</h2>
+            <p className="section-content">{data.experience}</p>
           </div>
         )}
 
+        {/* EDUCATION SECTION */}
         {data.education && (
           <div className="resume-section">
-            <h3>Education</h3>
-            <p>{data.education}</p>
+            <h2 className="section-header">🎓 Education</h2>
+            <p className="section-content">{data.education}</p>
           </div>
         )}
       </div>
-
-      <button onClick={downloadPDF} className="download-btn">
-        📥 Download PDF
-      </button>
     </div>
   );
 }
