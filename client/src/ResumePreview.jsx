@@ -87,11 +87,11 @@ export default function ResumePreview({ data }) {
         <div className="resume-header">
           <div className="resume-left">
             {data.photoPreview ? (
-              <div className="resume-photo">
-                <img src={data.photoPreview} alt="Profile" />
+              <div className="resume-photo-wrap">
+                <img src={data.photoPreview} alt="Profile" className="resume-photo" />
               </div>
             ) : (
-              <div className="resume-photo placeholder">No Photo</div>
+              <div className="resume-photo-wrap placeholder">No Photo</div>
             )}
           </div>
 
@@ -103,19 +103,28 @@ export default function ResumePreview({ data }) {
           </div>
         </div>
 
-        <div className="resume-lines">
-          <div className="line-item">
-            <span className="line-label">Skills</span>
-            <span className="line-value">{data.skills || "N/A"}</span>
-          </div>
-          <div className="line-item">
-            <span className="line-label">Experience</span>
-            <span className="line-value">{data.experience || "N/A"}</span>
-          </div>
-          <div className="line-item">
-            <span className="line-label">Education</span>
-            <span className="line-value">{data.education || "N/A"}</span>
-          </div>
+        <div className="resume-summary">
+          <h3>Professional Summary</h3>
+          <p>{data.summary || "Detailed-oriented professional with strong technical and communication skills, eager to contribute to team success through hard work and organizational skills."}</p>
+        </div>
+
+        <div className="resume-section">
+          <h3>Key Skills</h3>
+          <ul>
+            {data.skills ? data.skills.split(",").map((skill, index) => (
+              <li key={index}>{skill.trim()}</li>
+            )) : <li>N/A</li>}
+          </ul>
+        </div>
+
+        <div className="resume-section">
+          <h3>Experience</h3>
+          <p>{data.experience || "N/A"}</p>
+        </div>
+
+        <div className="resume-section">
+          <h3>Education</h3>
+          <p>{data.education || "N/A"}</p>
         </div>
       </div>
     </div>
