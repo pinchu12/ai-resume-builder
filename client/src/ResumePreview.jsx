@@ -72,7 +72,10 @@ export default function ResumePreview({ data }) {
       </div>
 
       <div id="resume" className="resume">
-        <div className="resume-title">R E S U M E</div>
+        <div className="resume-title-row">
+          <div className="resume-title-icon">📄</div>
+          <div className="resume-title">Resume</div>
+        </div>
 
         {/* HEADER WITH PHOTO */}
         <div className="resume-header">

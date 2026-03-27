@@ -89,21 +89,36 @@
 /* RESUME CONTENT */
 .resume {
   background: white;
-  padding: 50px;
-  border-radius: 8px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.14);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  line-height: 1.8;
+  line-height: 1.75;
   color: #2c3e50;
+  width: 100%;
+  max-width: 900px;
+  margin: auto;
+  min-height: calc(100vh - 160px);
+}
+
+.resume-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.resume-title-icon {
+  font-size: 24px;
 }
 
 .resume-title {
-  font-size: 24px;
-  font-weight: 800;
-  text-align: center;
-  color: #2c3e50;
-  letter-spacing: 6px;
-  margin-bottom: 20px;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #34495e;
 }
 
 .resume-lines {
