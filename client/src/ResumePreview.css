@@ -97,6 +97,42 @@
   color: #2c3e50;
 }
 
+.resume-title {
+  font-size: 24px;
+  font-weight: 800;
+  text-align: center;
+  color: #2c3e50;
+  letter-spacing: 6px;
+  margin-bottom: 20px;
+}
+
+.resume-lines {
+  border-top: 1px dashed #dfe6e9;
+  padding-top: 18px;
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.line-item {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.line-label {
+  font-weight: 700;
+  color: #2980b9;
+  min-width: 100px;
+}
+
+.line-value {
+  color: #2c3e50;
+  font-size: 14px;
+  white-space: pre-wrap;
+}
+
 .resume-header {
   border-bottom: 3px solid #3498db;
   padding-bottom: 30px;
@@ -135,16 +171,18 @@
 
 .header-contact {
   display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
+  flex-direction: column;
+  gap: 8px;
   font-size: 14px;
   color: #7f8c8d;
+  margin-top: 10px;
 }
 
 .header-contact span {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  font-weight: 600;
 }
 
 /* SECTIONS */

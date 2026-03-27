@@ -72,6 +72,8 @@ export default function ResumePreview({ data }) {
       </div>
 
       <div id="resume" className="resume">
+        <div className="resume-title">R E S U M E</div>
+
         {/* HEADER WITH PHOTO */}
         <div className="resume-header">
           <div className="header-content">
@@ -83,43 +85,34 @@ export default function ResumePreview({ data }) {
             <div className="header-text">
               <h1>{data.name}</h1>
               <div className="header-contact">
-                {data.email && <span>📧 {data.email}</span>}
                 {data.phone && <span>📱 {data.phone}</span>}
+                {data.email && <span>📧 {data.email}</span>}
                 {data.address && <span>📍 {data.address}</span>}
               </div>
             </div>
           </div>
         </div>
 
-        {/* SKILLS SECTION */}
-        {data.skills && (
-          <div className="resume-section">
-            <h2 className="section-header">💼 Skills</h2>
-            <div className="skills-list">
-              {data.skills.split(",").map((skill, index) => (
-                <span key={index} className="skill-tag">
-                  {skill.trim()}
-                </span>
-              ))}
+        <div className="resume-lines">
+          {data.skills && (
+            <div className="line-item">
+              <span className="line-label">Skills:</span>
+              <span className="line-value">{data.skills}</span>
             </div>
-          </div>
-        )}
-
-        {/* EXPERIENCE SECTION */}
-        {data.experience && (
-          <div className="resume-section">
-            <h2 className="section-header">🏢 Experience</h2>
-            <p className="section-content">{data.experience}</p>
-          </div>
-        )}
-
-        {/* EDUCATION SECTION */}
-        {data.education && (
-          <div className="resume-section">
-            <h2 className="section-header">🎓 Education</h2>
-            <p className="section-content">{data.education}</p>
-          </div>
-        )}
+          )}
+          {data.experience && (
+            <div className="line-item">
+              <span className="line-label">Experience:</span>
+              <span className="line-value">{data.experience}</span>
+            </div>
+          )}
+          {data.education && (
+            <div className="line-item">
+              <span className="line-label">Education:</span>
+              <span className="line-value">{data.education}</span>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
