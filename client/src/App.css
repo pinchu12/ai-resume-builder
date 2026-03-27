@@ -14,10 +14,63 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: radial-gradient(circle at top left, #5b9df8 0%, #2f3f8f 35%, #1a2146 100%);
   min-height: 100vh;
   padding: 20px;
+  color: #ffffff;
 }
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 20px;
+  background: rgba(255,255,255,0.05);
+}
+
+.app-container {
+  width: 100%;
+  max-width: 1400px;
+  box-shadow: 0 20px 45px rgba(0,0,0,0.25);
+  border-radius: 20px;
+  backdrop-filter: blur(16px);
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.18);
+}
+
+@media (max-width: 1024px) {
+  .app-container {
+    margin: 0 12px;
+    background: rgba(255,255,255,0.10);
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+  #root {
+    padding-top: 10px;
+  }
+  .app-header h1 {
+    font-size: 2rem;
+  }
+  .app-header p {
+    font-size: 0.95rem;
+  }
+  .app-content {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 20px;
+  }
+  .app-content {
+    box-shadow: none;
+    border: none;
+    background: transparent;
+  }
+}
+
 
 #root {
   min-height: 100vh;
