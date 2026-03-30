@@ -45,12 +45,14 @@ function App() {
   const saveResume = async (resumeData) => {
     setLoading(true);
     try {
-      // Always save to localStorage first
+      // Always save to localStorage first (without photo to save space)
+      const resumeForStorage = { ...resumeData };
+      delete resumeForStorage.photoPreview; // Remove large base64 image
       const localResumes = JSON.parse(localStorage.getItem('resumes') || '[]');
-      const newResume = { ...resumeData, id: Date.now() };
+      const newResume = { ...resumeForStorage, id: Date.now() };
       localResumes.push(newResume);
       localStorage.setItem('resumes', JSON.stringify(localResumes));
-      setData({ ...resumeData }); // Ensure re-render
+      setData({ ...resumeData }); // Keep photo in data
       setResumes([...localResumes]); // Ensure re-render
       showMessage("✅ Resume saved successfully!", "success");
 
