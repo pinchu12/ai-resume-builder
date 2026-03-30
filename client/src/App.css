@@ -17,7 +17,7 @@ body {
   background: radial-gradient(circle at top left, #5b9df8 0%, #2f3f8f 35%, #1a2146 100%);
   min-height: 100vh;
   padding: 20px;
-  color: #333333;
+  color: #000000;
 }
 
 #root {
