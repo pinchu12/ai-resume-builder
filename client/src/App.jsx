@@ -20,15 +20,22 @@ function App() {
 
   // Fetch resumes from backend
   const fetchResumes = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
+      // Load from localStorage first
+      const localResumes = JSON.parse(localStorage.getItem('resumes') || '[]');
+      setResumes(localResumes);
+
+      // Try to fetch from backend
       const response = await axios.get(`${API_URL}/resumes`);
       if (response.data.success) {
         setResumes(response.data.data || []);
+        // Optionally sync to localStorage
+        localStorage.setItem('resumes', JSON.stringify(response.data.data || []));
       }
     } catch (error) {
-      console.error("Error fetching resumes:", error);
-      showMessage("Unable to connect to server. Make sure the backend is running.", "error", 5000);
+      console.error("Error fetching from server:", error);
+      // Already loaded from localStorage
     } finally {
       setLoading(false);
     }
@@ -36,8 +43,18 @@ function App() {
 
   // Save resume to backend
   const saveResume = async (resumeData) => {
+    setLoading(true);
     try {
-      setLoading(true);
+      // Always save to localStorage first
+      const localResumes = JSON.parse(localStorage.getItem('resumes') || '[]');
+      const newResume = { ...resumeData, id: Date.now() };
+      localResumes.push(newResume);
+      localStorage.setItem('resumes', JSON.stringify(localResumes));
+      setData(resumeData);
+      setResumes(localResumes);
+      showMessage("✅ Resume saved successfully!", "success");
+
+      // Try to save to backend as well
       const response = await axios.post(`${API_URL}/resumes`, resumeData, {
         headers: {
           "Content-Type": "application/json"
@@ -45,16 +62,14 @@ function App() {
       });
 
       if (response.data.success) {
-        setData(resumeData);
-        fetchResumes();
-        showMessage("✅ Resume created successfully!", "success");
-        return response.data.data;
+        showMessage("✅ Resume also saved to server!", "success");
       }
+      return newResume;
     } catch (error) {
-      console.error("Error saving resume:", error);
-      const errorMsg = error.response?.data?.error || error.message || "Failed to save resume";
-      showMessage(`❌ Error: ${errorMsg}`, "error", 5000);
-      throw error;
+      console.error("Error saving to server:", error);
+      // Already saved to localStorage
+      showMessage("Resume saved locally", "info");
+      return { ...resumeData, id: Date.now() };
     } finally {
       setLoading(false);
     }

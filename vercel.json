@@ -3,7 +3,7 @@
   "buildCommand": "cd client && npm install && npm run build",
   "outputDirectory": "client/dist",
   "env": {
-    "VITE_API_URL": "@vite_api_url"
+    "VITE_API_URL": "http://localhost:5000"
   },
   "rewrites": [
     {

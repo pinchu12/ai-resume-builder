@@ -120,6 +120,7 @@ export default function ResumeForm({ setData }) {
               <input
                 type="file"
                 accept="image/*"
+                capture="user"
                 onChange={handlePhotoChange}
                 className="hidden-input"
               />
