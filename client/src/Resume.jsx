@@ -58,9 +58,10 @@ export default function ResumeForm({ setData }) {
     if (form.email && !form.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
       newErrors.email = "Invalid email format";
     }
-    if (!form.skills.trim()) newErrors.skills = "Skills are required";
-    if (!form.experience.trim()) newErrors.experience = "Experience is required";
-    if (!form.education.trim()) newErrors.education = "Education is required";
+    // Make other fields optional for now
+    // if (!form.skills.trim()) newErrors.skills = "Skills are required";
+    // if (!form.experience.trim()) newErrors.experience = "Experience is required";
+    // if (!form.education.trim()) newErrors.education = "Education is required";
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;

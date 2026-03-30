@@ -50,8 +50,8 @@ function App() {
       const newResume = { ...resumeData, id: Date.now() };
       localResumes.push(newResume);
       localStorage.setItem('resumes', JSON.stringify(localResumes));
-      setData(resumeData);
-      setResumes(localResumes);
+      setData({ ...resumeData }); // Ensure re-render
+      setResumes([...localResumes]); // Ensure re-render
       showMessage("✅ Resume saved successfully!", "success");
 
       // Try to save to backend as well
@@ -77,6 +77,11 @@ function App() {
 
   useEffect(() => {
     fetchResumes();
+    // Load last resume into data
+    const localResumes = JSON.parse(localStorage.getItem('resumes') || '[]');
+    if (localResumes.length > 0) {
+      setData(localResumes[localResumes.length - 1]);
+    }
   }, []);
 
   return (
