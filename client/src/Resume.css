@@ -270,6 +270,12 @@
     padding: 15px;
   }
 
+  .btn-submit {
+    padding: 18px 28px;
+    font-size: 18px;
+    margin-top: 20px;
+  }
+
   .input-group {
     grid-template-columns: 1fr;
   }
