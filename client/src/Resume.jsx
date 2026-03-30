@@ -223,7 +223,7 @@ export default function ResumeForm({ setData }) {
 
       {errors.submit && <div className="error-message">{errors.submit}</div>}
 
-      <button type="submit" className="btn-submit" disabled={loading}>
+      <button type="button" className="btn-submit" disabled={loading} onClick={handleSubmit}>
         {loading ? "⏳ Generating Resume..." : "✨ Generate Resume"}
       </button>
     </form>
