@@ -13,7 +13,7 @@ const initialFormState = {
   photoPreview: null
 };
 
-export default function ResumeForm({ setData }) {
+export default function ResumeForm({ setData, resumeMode = "general" }) {
   const [form, setForm] = useState(initialFormState);
 
   const [errors, setErrors] = useState({});
@@ -120,6 +120,7 @@ export default function ResumeForm({ setData }) {
       <div className="form-header">
         <h2>📝 Professional Resume Builder</h2>
         <p>Fill in your details and create your resume</p>
+        <p className="mode-badge">Mode: {resumeMode}</p>
       </div>
 
       <div className="form-section">
@@ -138,27 +139,34 @@ export default function ResumeForm({ setData }) {
             </div>
           )}
           {!form.photoPreview && (
-            <label className="photo-input-label">
-              <input
-                type="file"
-                accept="image/*"
-                capture="user"
-                onChange={handlePhotoChange}
-                className="hidden-input"
-              />
+            <div className="photo-input-label">
               <div className="upload-area">
                 <div className="upload-icon">📸</div>
-                <p>Click to upload photo</p>
+                <p>Upload from Camera or Gallery</p>
                 <p className="upload-hint">JPG, PNG, GIF (Max 5MB)</p>
               </div>
-              <input
-                type="file"
-                accept="image/*"
-                capture="user"
-                onChange={handlePhotoChange}
-                className="mobile-file-input"
-              />
-            </label>
+              <div className="photo-actions">
+                <label className="photo-action-btn">
+                  Open Camera
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={handlePhotoChange}
+                    className="hidden-input"
+                  />
+                </label>
+                <label className="photo-action-btn">
+                  Choose from Gallery
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePhotoChange}
+                    className="hidden-input"
+                  />
+                </label>
+              </div>
+            </div>
           )}
         </div>
         {errors.photo && <span className="error-text">{errors.photo}</span>}

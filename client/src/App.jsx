@@ -13,7 +13,9 @@ function App() {
   const [resumes, setResumes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
-  const [mobileTab, setMobileTab] = useState("builder");
+  const [currentPage, setCurrentPage] = useState("builder");
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [resumeMode, setResumeMode] = useState("general");
   const [formVersion, setFormVersion] = useState(0);
 
   // Show message notification
@@ -34,16 +36,22 @@ function App() {
   const startNewResume = () => {
     setData({});
     setFormVersion((v) => v + 1);
-    setMobileTab("builder");
+    setCurrentPage("builder");
     window.scrollTo({ top: 0, behavior: "smooth" });
     showMessage("New resume form is ready", "info", 2200);
   };
 
   const openSavedResume = (resume) => {
     setData(resume || {});
-    setMobileTab("builder");
+    setCurrentPage("builder");
     showMessage("Saved resume loaded", "success", 2200);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const selectModeOption = (mode) => {
+    setResumeMode(mode);
+    setMenuOpen(false);
+    startNewResume();
   };
 
   // Fetch resumes from backend
@@ -94,6 +102,7 @@ function App() {
       cleanedLocalResumes.push(newResume);
       localStorage.setItem("resumes", JSON.stringify(cleanedLocalResumes.slice(-25)));
       setResumes([...cleanedLocalResumes.slice(-25)]);
+      setCurrentPage("saved");
       showMessage("✅ Resume saved successfully!", "success");
 
       // Sync to backend in background; local save already succeeded.
@@ -132,8 +141,31 @@ function App() {
   return (
     <div className="app-container">
       <header className="app-header">
-        <h1>🎯 Professional Resume Builder</h1>
-        <p>Create and download your perfect resume in minutes</p>
+        <div className="header-row">
+          <div>
+            <h1>🎯 Professional Resume Builder</h1>
+            <p>Create and download your perfect resume in minutes</p>
+          </div>
+          <div className="menu-wrap">
+            <button type="button" className="menu-btn" onClick={() => setMenuOpen((v) => !v)}>
+              ⋮
+            </button>
+            {menuOpen && (
+              <div className="menu-dropdown">
+                <button type="button" onClick={() => { setCurrentPage("saved"); setMenuOpen(false); }}>
+                  Saved Resumes
+                </button>
+                <button type="button" onClick={() => { setMenuOpen(false); startNewResume(); }}>
+                  New Resume
+                </button>
+                <button type="button" onClick={() => selectModeOption("job")}>Resume for Job</button>
+                <button type="button" onClick={() => selectModeOption("education")}>Resume for Education</button>
+                <button type="button" onClick={() => selectModeOption("internship")}>Resume for Internship</button>
+                <button type="button" onClick={() => selectModeOption("general")}>General Resume</button>
+              </div>
+            )}
+          </div>
+        </div>
       </header>
 
       {message && (
@@ -142,26 +174,29 @@ function App() {
         </div>
       )}
 
-      <div className="app-content">
-        <div className="form-section">
-          <div className="builder-actions">
-            <button type="button" className="builder-btn" onClick={startNewResume}>
-              + New Resume
-            </button>
-            <button type="button" className="builder-btn" onClick={() => setMobileTab("saved")}>
-              Saved Resumes ({resumes.length})
-            </button>
+      {currentPage === "builder" ? (
+        <div className="app-content">
+          <div className="form-section">
+            <div className="builder-actions">
+              <button type="button" className="builder-btn" onClick={startNewResume}>
+                + New Resume
+              </button>
+              <button type="button" className="builder-btn" onClick={() => setCurrentPage("saved")}>
+                Saved Resumes ({resumes.length})
+              </button>
+            </div>
+            <ResumeForm key={formVersion} setData={saveResume} resumeMode={resumeMode} />
           </div>
-          <ResumeForm key={formVersion} setData={saveResume} />
+          <div className="preview-section">
+            <ResumePreview data={data} />
+          </div>
         </div>
-        <div className={`preview-section ${mobileTab === "saved" ? "mobile-hidden" : ""}`}>
-          <ResumePreview data={data} />
-        </div>
-        <div className={`saved-resume-section ${mobileTab === "saved" ? "mobile-show" : ""}`}>
+      ) : (
+        <div className="saved-page">
           <div className="saved-header">
             <h3>Saved Resumes</h3>
-            <button type="button" className="builder-btn" onClick={() => setMobileTab("builder")}>
-              Back to Builder
+            <button type="button" className="builder-btn" onClick={() => setCurrentPage("builder")}>
+              Back to Create
             </button>
           </div>
           {resumes.length === 0 ? (
@@ -184,8 +219,11 @@ function App() {
                 ))}
             </div>
           )}
+          <div className="saved-preview-wrap">
+            <ResumePreview data={data} />
+          </div>
         </div>
-      </div>
+      )}
 
       {loading && (
         <div className="loading">

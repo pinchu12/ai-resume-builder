@@ -27,6 +27,18 @@
   font-size: 14px;
 }
 
+.mode-badge {
+  display: inline-block;
+  margin-top: 8px !important;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #e8f1ff;
+  color: #1e4fa1 !important;
+  font-size: 12px !important;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
 .form-section {
   display: flex;
   flex-direction: column;
@@ -169,17 +181,29 @@
 }
 
 .hidden-input {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  cursor: pointer;
+  display: none;
 }
 
 .mobile-file-input {
   display: none;
+}
+
+.photo-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.photo-action-btn {
+  position: relative;
+  border-radius: 8px;
+  padding: 10px 14px;
+  background: #1f6feb;
+  color: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 13px;
 }
 
 .upload-area {
@@ -222,6 +246,16 @@
     background: #ffffff;
     color: #000000;
     font-size: 14px;
+  }
+
+  .photo-actions {
+    flex-direction: column;
+  }
+
+  .photo-action-btn {
+    width: 100%;
+    text-align: center;
+    font-size: 15px;
   }
 }
 
