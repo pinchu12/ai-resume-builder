@@ -88,7 +88,25 @@ export default function ResumeForm({ setData }) {
       await setData(resumeData);
     } catch (error) {
       console.error("Error submitting form:", error);
-      setErrors({ submit: "Failed to save resume. Please try again." });
+      try {
+        const localResumes = JSON.parse(localStorage.getItem("resumes") || "[]");
+        const safeLocalResumes = Array.isArray(localResumes) ? localResumes : [];
+        const backupResume = {
+          name: form.name,
+          email: form.email,
+          phone: form.phone,
+          address: form.address,
+          skills: form.skills,
+          experience: form.experience,
+          education: form.education,
+          id: Date.now()
+        };
+        safeLocalResumes.push(backupResume);
+        localStorage.setItem("resumes", JSON.stringify(safeLocalResumes.slice(-25)));
+        setErrors({ submit: "Saved locally. Please refresh preview." });
+      } catch {
+        setErrors({ submit: "Failed to save resume. Please try again." });
+      }
     } finally {
       setLoading(false);
     }
@@ -146,6 +164,7 @@ export default function ResumeForm({ setData }) {
               placeholder="Full Name"
               value={form.name}
               onChange={handleChange}
+              style={{ color: "#000000", WebkitTextFillColor: "#000000" }}
               className={errors.name ? "input-error" : ""}
             />
             {errors.name && <span className="error-text">{errors.name}</span>}
@@ -157,6 +176,7 @@ export default function ResumeForm({ setData }) {
               placeholder="Email Address"
               value={form.email}
               onChange={handleChange}
+              style={{ color: "#000000", WebkitTextFillColor: "#000000" }}
               className={errors.email ? "input-error" : ""}
             />
             {errors.email && <span className="error-text">{errors.email}</span>}
@@ -170,6 +190,7 @@ export default function ResumeForm({ setData }) {
               placeholder="Phone Number"
               value={form.phone}
               onChange={handleChange}
+              style={{ color: "#000000", WebkitTextFillColor: "#000000" }}
             />
           </div>
           <div className="input-wrapper">
@@ -179,6 +200,7 @@ export default function ResumeForm({ setData }) {
               placeholder="Address"
               value={form.address}
               onChange={handleChange}
+              style={{ color: "#000000", WebkitTextFillColor: "#000000" }}
             />
           </div>
         </div>
@@ -193,6 +215,7 @@ export default function ResumeForm({ setData }) {
             value={form.skills}
             onChange={handleChange}
             rows="3"
+            style={{ color: "#000000", WebkitTextFillColor: "#000000" }}
             className={errors.skills ? "input-error" : ""}
           />
           {errors.skills && <span className="error-text">{errors.skills}</span>}
@@ -204,6 +227,7 @@ export default function ResumeForm({ setData }) {
             value={form.experience}
             onChange={handleChange}
             rows="4"
+            style={{ color: "#000000", WebkitTextFillColor: "#000000" }}
             className={errors.experience ? "input-error" : ""}
           />
           {errors.experience && <span className="error-text">{errors.experience}</span>}
@@ -215,6 +239,7 @@ export default function ResumeForm({ setData }) {
             value={form.education}
             onChange={handleChange}
             rows="3"
+            style={{ color: "#000000", WebkitTextFillColor: "#000000" }}
             className={errors.education ? "input-error" : ""}
           />
           {errors.education && <span className="error-text">{errors.education}</span>}

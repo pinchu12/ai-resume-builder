@@ -106,7 +106,7 @@ function App() {
   useEffect(() => {
     fetchResumes();
     // Load last resume into data
-    const localResumes = JSON.parse(localStorage.getItem('resumes') || '[]');
+    const localResumes = readLocalResumes();
     if (localResumes.length > 0) {
       setData(localResumes[localResumes.length - 1]);
     }
