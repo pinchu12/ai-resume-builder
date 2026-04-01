@@ -1,18 +1,20 @@
 import { useState } from "react";
 import "./Resume.css";
 
+const initialFormState = {
+  name: "",
+  email: "",
+  phone: "",
+  address: "",
+  skills: "",
+  experience: "",
+  education: "",
+  photo: null,
+  photoPreview: null
+};
+
 export default function ResumeForm({ setData }) {
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    address: "",
-    skills: "",
-    experience: "",
-    education: "",
-    photo: null,
-    photoPreview: null
-  });
+  const [form, setForm] = useState(initialFormState);
 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -86,6 +88,7 @@ export default function ResumeForm({ setData }) {
       };
       
       await setData(resumeData);
+      setForm(initialFormState);
     } catch (error) {
       console.error("Error submitting form:", error);
       try {

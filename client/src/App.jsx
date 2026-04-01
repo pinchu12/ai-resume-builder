@@ -13,6 +13,8 @@ function App() {
   const [resumes, setResumes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
+  const [mobileTab, setMobileTab] = useState("builder");
+  const [formVersion, setFormVersion] = useState(0);
 
   // Show message notification
   const showMessage = (text, type = "success", duration = 3000) => {
@@ -27,6 +29,21 @@ function App() {
     } catch {
       return [];
     }
+  };
+
+  const startNewResume = () => {
+    setData({});
+    setFormVersion((v) => v + 1);
+    setMobileTab("builder");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    showMessage("New resume form is ready", "info", 2200);
+  };
+
+  const openSavedResume = (resume) => {
+    setData(resume || {});
+    setMobileTab("builder");
+    showMessage("Saved resume loaded", "success", 2200);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   // Fetch resumes from backend
@@ -127,10 +144,46 @@ function App() {
 
       <div className="app-content">
         <div className="form-section">
-          <ResumeForm setData={saveResume} />
+          <div className="builder-actions">
+            <button type="button" className="builder-btn" onClick={startNewResume}>
+              + New Resume
+            </button>
+            <button type="button" className="builder-btn" onClick={() => setMobileTab("saved")}>
+              Saved Resumes ({resumes.length})
+            </button>
+          </div>
+          <ResumeForm key={formVersion} setData={saveResume} />
         </div>
-        <div className="preview-section">
+        <div className={`preview-section ${mobileTab === "saved" ? "mobile-hidden" : ""}`}>
           <ResumePreview data={data} />
+        </div>
+        <div className={`saved-resume-section ${mobileTab === "saved" ? "mobile-show" : ""}`}>
+          <div className="saved-header">
+            <h3>Saved Resumes</h3>
+            <button type="button" className="builder-btn" onClick={() => setMobileTab("builder")}>
+              Back to Builder
+            </button>
+          </div>
+          {resumes.length === 0 ? (
+            <p className="saved-empty">No saved resumes yet.</p>
+          ) : (
+            <div className="saved-list">
+              {resumes
+                .slice()
+                .reverse()
+                .map((resume, index) => (
+                  <div className="saved-item" key={resume.id || `${resume.name}-${index}`}>
+                    <div>
+                      <strong>{resume.name || "Untitled"}</strong>
+                      <p>{resume.email || "No email"}</p>
+                    </div>
+                    <button type="button" className="builder-btn" onClick={() => openSavedResume(resume)}>
+                      Open
+                    </button>
+                  </div>
+                ))}
+            </div>
+          )}
         </div>
       </div>
 
