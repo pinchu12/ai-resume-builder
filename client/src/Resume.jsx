@@ -106,7 +106,7 @@ export default function ResumeForm({ setData, resumeMode = "general" }) {
         };
         safeLocalResumes.push(backupResume);
         localStorage.setItem("resumes", JSON.stringify(safeLocalResumes.slice(-25)));
-        setErrors({ submit: "Saved locally. Please refresh preview." });
+        setErrors({ submit: "Saved locally successfully." });
       } catch {
         setErrors({ submit: "Failed to save resume. Please try again." });
       }
