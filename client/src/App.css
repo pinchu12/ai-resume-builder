@@ -105,13 +105,20 @@ body {
   position: relative;
 }
 
+.menu-fixed {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 1200;
+}
+
 .menu-btn {
   border: none;
   border-radius: 8px;
   padding: 8px 12px;
-  font-size: 24px;
+  font-size: 18px;
   line-height: 1;
-  background: rgba(255, 255, 255, 0.22);
+  background: #1f6feb;
   color: #ffffff;
   cursor: pointer;
 }
@@ -316,6 +323,11 @@ body {
   font-size: 13px;
 }
 
+.saved-item-actions {
+  display: flex;
+  gap: 8px;
+}
+
 .message-info {
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   color: #ffffff;
@@ -430,6 +442,15 @@ body {
   .menu-dropdown {
     width: 190px;
     right: 0;
+  }
+
+  .saved-item-actions {
+    flex-direction: column;
+  }
+
+  .menu-fixed {
+    top: 8px;
+    right: 8px;
   }
 
   .saved-page {

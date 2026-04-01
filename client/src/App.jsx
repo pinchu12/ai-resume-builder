@@ -54,6 +54,54 @@ function App() {
     startNewResume();
   };
 
+  const openResumeInNewTab = (resume) => {
+    if (!resume) return;
+    const escapeHtml = (value = "") =>
+      String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+
+    const newWindow = window.open("", "_blank");
+    if (!newWindow) {
+      showMessage("Popup blocked. Allow popups to open resume page.", "error", 3000);
+      return;
+    }
+
+    const html = `<!doctype html>
+      <html>
+      <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>${escapeHtml(resume.name || "Resume")}</title>
+        <style>
+          body{font-family:Arial,sans-serif;background:#f5f7fb;padding:20px;margin:0;color:#111827}
+          .card{max-width:860px;margin:0 auto;background:#fff;border:1px solid #dbe4ef;border-radius:12px;padding:20px}
+          h1,h2,h3{margin:0 0 10px}
+          .meta{color:#4b5563;margin-bottom:14px}
+          .section{margin:16px 0}
+          .photo{width:120px;height:120px;border-radius:10px;object-fit:cover;border:2px solid #1f6feb}
+        </style>
+      </head>
+      <body>
+        <div class="card">
+          ${resume.photoPreview ? `<img class="photo" src="${resume.photoPreview}" alt="Photo" />` : ""}
+          <h1>${escapeHtml(resume.name || "Untitled")}</h1>
+          <div class="meta">${escapeHtml(resume.email || "")}${resume.phone ? " | " + escapeHtml(resume.phone) : ""}</div>
+          <div class="section"><h3>Address</h3><p>${escapeHtml(resume.address || "N/A")}</p></div>
+          <div class="section"><h3>Skills</h3><p>${escapeHtml(resume.skills || "N/A")}</p></div>
+          <div class="section"><h3>Experience</h3><p>${escapeHtml(resume.experience || "N/A")}</p></div>
+          <div class="section"><h3>Education</h3><p>${escapeHtml(resume.education || "N/A")}</p></div>
+        </div>
+      </body>
+      </html>`;
+
+    newWindow.document.open();
+    newWindow.document.write(html);
+    newWindow.document.close();
+  };
+
   // Fetch resumes from backend
   const fetchResumes = async () => {
     setLoading(true);
@@ -104,6 +152,7 @@ function App() {
       setResumes([...cleanedLocalResumes.slice(-25)]);
       setCurrentPage("saved");
       showMessage("✅ Resume saved successfully!", "success");
+      openResumeInNewTab({ ...resumeData, id: newResume.id });
 
       // Sync to backend in background; local save already succeeded.
       axios.post(`${API_URL}/resumes`, resumeData, {
@@ -146,27 +195,28 @@ function App() {
             <h1>🎯 Professional Resume Builder</h1>
             <p>Create and download your perfect resume in minutes</p>
           </div>
-          <div className="menu-wrap">
-            <button type="button" className="menu-btn" onClick={() => setMenuOpen((v) => !v)}>
-              ⋮
-            </button>
-            {menuOpen && (
-              <div className="menu-dropdown">
-                <button type="button" onClick={() => { setCurrentPage("saved"); setMenuOpen(false); }}>
-                  Saved Resumes
-                </button>
-                <button type="button" onClick={() => { setMenuOpen(false); startNewResume(); }}>
-                  New Resume
-                </button>
-                <button type="button" onClick={() => selectModeOption("job")}>Resume for Job</button>
-                <button type="button" onClick={() => selectModeOption("education")}>Resume for Education</button>
-                <button type="button" onClick={() => selectModeOption("internship")}>Resume for Internship</button>
-                <button type="button" onClick={() => selectModeOption("general")}>General Resume</button>
-              </div>
-            )}
-          </div>
         </div>
       </header>
+
+      <div className="menu-wrap menu-fixed">
+        <button type="button" className="menu-btn" onClick={() => setMenuOpen((v) => !v)}>
+          ⋮ Menu
+        </button>
+        {menuOpen && (
+          <div className="menu-dropdown">
+            <button type="button" onClick={() => { setCurrentPage("saved"); setMenuOpen(false); }}>
+              Saved Resumes
+            </button>
+            <button type="button" onClick={() => { setMenuOpen(false); startNewResume(); }}>
+              New Resume
+            </button>
+            <button type="button" onClick={() => selectModeOption("job")}>Resume for Job</button>
+            <button type="button" onClick={() => selectModeOption("education")}>Resume for Education</button>
+            <button type="button" onClick={() => selectModeOption("internship")}>Resume for Internship</button>
+            <button type="button" onClick={() => selectModeOption("general")}>General Resume</button>
+          </div>
+        )}
+      </div>
 
       {message && (
         <div className={`message-notification message-${message.type}`}>
@@ -212,9 +262,14 @@ function App() {
                       <strong>{resume.name || "Untitled"}</strong>
                       <p>{resume.email || "No email"}</p>
                     </div>
-                    <button type="button" className="builder-btn" onClick={() => openSavedResume(resume)}>
-                      Open
-                    </button>
+                    <div className="saved-item-actions">
+                      <button type="button" className="builder-btn" onClick={() => openSavedResume(resume)}>
+                        Open
+                      </button>
+                      <button type="button" className="builder-btn" onClick={() => openResumeInNewTab(resume)}>
+                        Open Page
+                      </button>
+                    </div>
                   </div>
                 ))}
             </div>
