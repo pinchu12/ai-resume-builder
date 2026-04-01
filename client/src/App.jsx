@@ -4,7 +4,9 @@ import ResumePreview from "./ResumePreview";
 import axios from "axios";
 import "./App.css";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.PROD ? "/api" : "http://localhost:5000/api");
 
 function App() {
   const [data, setData] = useState({});
@@ -45,15 +47,24 @@ function App() {
   const saveResume = async (resumeData) => {
     setLoading(true);
     try {
-      // Always save to localStorage first (without photo to save space)
+      // Update preview immediately even if storage/network fails.
+      setData({ ...resumeData });
+
+      // Save to localStorage without photo (avoid quota issues with base64 data).
       const resumeForStorage = { ...resumeData };
-      delete resumeForStorage.photoPreview; // Remove large base64 image
-      const localResumes = JSON.parse(localStorage.getItem('resumes') || '[]');
+      delete resumeForStorage.photoPreview;
+      const localResumes = JSON.parse(localStorage.getItem("resumes") || "[]");
+      const cleanedLocalResumes = Array.isArray(localResumes)
+        ? localResumes.map((r) => {
+            const copy = { ...r };
+            delete copy.photoPreview;
+            return copy;
+          })
+        : [];
       const newResume = { ...resumeForStorage, id: Date.now() };
-      localResumes.push(newResume);
-      localStorage.setItem('resumes', JSON.stringify(localResumes));
-      setData({ ...resumeData }); // Keep photo in data
-      setResumes([...localResumes]); // Ensure re-render
+      cleanedLocalResumes.push(newResume);
+      localStorage.setItem("resumes", JSON.stringify(cleanedLocalResumes.slice(-25)));
+      setResumes([...cleanedLocalResumes.slice(-25)]);
       showMessage("✅ Resume saved successfully!", "success");
 
       // Try to save to backend as well
@@ -69,7 +80,6 @@ function App() {
       return newResume;
     } catch (error) {
       console.error("Error saving to server:", error);
-      // Already saved to localStorage
       showMessage("Resume saved locally", "info");
       return { ...resumeData, id: Date.now() };
     } finally {
