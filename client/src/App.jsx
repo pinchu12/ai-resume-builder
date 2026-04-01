@@ -1,14 +1,18 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import ResumeForm from "./Resume";
 import ResumePreview from "./ResumePreview";
 import axios from "axios";
 import "./App.css";
+import { useTemplateStore } from "./store/templateStore";
 
 const API_URL =
   import.meta.env.VITE_API_URL ||
   (import.meta.env.PROD ? "/api" : "http://localhost:5000/api");
 
 function App() {
+  const location = useLocation();
+  const selectedTemplate = useTemplateStore((state) => state.selectedTemplate);
   const [data, setData] = useState({});
   const [resumes, setResumes] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -192,6 +196,14 @@ function App() {
       setData(localResumes[localResumes.length - 1]);
     }
   }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const templateId = params.get("templateId");
+    if (templateId && selectedTemplate && selectedTemplate.id === templateId) {
+      showMessage(`Template selected: ${selectedTemplate.name}`, "info", 2500);
+    }
+  }, [location.search, selectedTemplate]);
 
   return (
     <div className="app-container">
