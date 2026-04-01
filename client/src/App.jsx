@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import ResumeForm from "./Resume";
-import ResumePreview from "./ResumePreview";
+import ResumeRenderer from "./components/ResumeRenderer";
 import axios from "axios";
 import { useTemplateStore } from "./store/templateStore";
 import { templates } from "./data/templates";
@@ -14,6 +14,9 @@ function App() {
   const navigate = useNavigate();
   const location = useLocation();
   const selectedTemplate = useTemplateStore((state) => state.selectedTemplate);
+  const setSelectedTemplate = useTemplateStore((state) => state.setSelectedTemplate);
+  const setSelectedTemplateId = useTemplateStore((state) => state.setSelectedTemplateId);
+  const setResumeData = useTemplateStore((state) => state.setResumeData);
   const [data, setData] = useState({});
   const [resumes, setResumes] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -51,6 +54,7 @@ function App() {
 
   const startNewResume = () => {
     setData({});
+    setResumeData({});
     setFormVersion((v) => v + 1);
     updatePageView("builder");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -58,7 +62,9 @@ function App() {
   };
 
   const openSavedResume = (resume) => {
-    setData(resume || {});
+    const nextResume = resume || {};
+    setData(nextResume);
+    setResumeData(nextResume);
     updatePageView("builder");
     showMessage("Saved resume loaded", "success", 2200);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -156,6 +162,7 @@ function App() {
     try {
       // Update preview immediately even if storage/network fails.
       setData({ ...resumeData });
+      setResumeData({ ...resumeData });
 
       // Save to localStorage without photo (avoid quota issues with base64 data).
       const resumeForStorage = { ...resumeData };
@@ -229,10 +236,13 @@ function App() {
       null;
 
     if (resolvedTemplate) {
+      setSelectedTemplate(resolvedTemplate);
       setActiveTemplate(resolvedTemplate);
       showMessage(`Template selected: ${resolvedTemplate.name}`, "info", 2500);
+    } else {
+      setSelectedTemplateId("classic");
     }
-  }, [location.search, selectedTemplate]);
+  }, [location.search, selectedTemplate, setSelectedTemplate, setSelectedTemplateId]);
 
   return (
     <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-slate-50 px-3 py-4 text-slate-900 sm:px-4 lg:px-6 dark:bg-slate-950 dark:text-slate-100">
@@ -350,12 +360,20 @@ function App() {
                 </div>
               )}
 
-              <ResumeForm key={formVersion} setData={saveResume} resumeMode={resumeMode} />
+              <ResumeForm
+                key={formVersion}
+                setData={saveResume}
+                resumeMode={resumeMode}
+                onDraftChange={(draft) => {
+                  setData(draft);
+                  setResumeData(draft);
+                }}
+              />
             </section>
 
             <section className="min-w-0 w-full max-w-full overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-5">
               <div className="max-h-[80vh] overflow-auto pr-1">
-                <ResumePreview data={data} template={activeTemplate} />
+                <ResumeRenderer data={data} />
               </div>
             </section>
           </div>

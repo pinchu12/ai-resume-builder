@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./Resume.css";
 
 const initialFormState = {
@@ -13,11 +13,25 @@ const initialFormState = {
   photoPreview: null
 };
 
-export default function ResumeForm({ setData, resumeMode = "general" }) {
+export default function ResumeForm({ setData, resumeMode = "general", onDraftChange }) {
   const [form, setForm] = useState(initialFormState);
 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!onDraftChange) return;
+    onDraftChange({
+      name: form.name,
+      email: form.email,
+      phone: form.phone,
+      address: form.address,
+      skills: form.skills,
+      experience: form.experience,
+      education: form.education,
+      photoPreview: form.photoPreview
+    });
+  }, [form, onDraftChange]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
