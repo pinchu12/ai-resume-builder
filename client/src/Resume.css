@@ -68,7 +68,9 @@
   font-family: inherit;
   transition: all 0.3s ease;
   background: white;
-  color: #000000;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  caret-color: #000000;
 }
 
 .input-wrapper input:focus,
@@ -88,6 +90,16 @@
 .input-wrapper input::placeholder,
 .textarea-wrapper textarea::placeholder {
   color: #95a5a6;
+}
+
+.input-wrapper input:-webkit-autofill,
+.input-wrapper input:-webkit-autofill:hover,
+.input-wrapper input:-webkit-autofill:focus,
+.textarea-wrapper textarea:-webkit-autofill,
+.textarea-wrapper textarea:-webkit-autofill:hover,
+.textarea-wrapper textarea:-webkit-autofill:focus {
+  -webkit-text-fill-color: #000000 !important;
+  transition: background-color 9999s ease-out 0s;
 }
 
 .textarea-wrapper {

@@ -20,20 +20,32 @@ function App() {
     setTimeout(() => setMessage(null), duration);
   };
 
+  const readLocalResumes = () => {
+    try {
+      const parsed = JSON.parse(localStorage.getItem("resumes") || "[]");
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  };
+
   // Fetch resumes from backend
   const fetchResumes = async () => {
     setLoading(true);
     try {
       // Load from localStorage first
-      const localResumes = JSON.parse(localStorage.getItem('resumes') || '[]');
+      const localResumes = readLocalResumes();
       setResumes(localResumes);
 
       // Try to fetch from backend
       const response = await axios.get(`${API_URL}/resumes`);
       if (response.data.success) {
-        setResumes(response.data.data || []);
-        // Optionally sync to localStorage
-        localStorage.setItem('resumes', JSON.stringify(response.data.data || []));
+        const remoteResumes = Array.isArray(response.data.data) ? response.data.data : [];
+        // Do not wipe valid local data with empty remote payloads.
+        if (remoteResumes.length > 0 || localResumes.length === 0) {
+          setResumes(remoteResumes);
+          localStorage.setItem("resumes", JSON.stringify(remoteResumes));
+        }
       }
     } catch (error) {
       console.error("Error fetching from server:", error);
@@ -53,7 +65,7 @@ function App() {
       // Save to localStorage without photo (avoid quota issues with base64 data).
       const resumeForStorage = { ...resumeData };
       delete resumeForStorage.photoPreview;
-      const localResumes = JSON.parse(localStorage.getItem("resumes") || "[]");
+      const localResumes = readLocalResumes();
       const cleanedLocalResumes = Array.isArray(localResumes)
         ? localResumes.map((r) => {
             const copy = { ...r };
@@ -67,16 +79,20 @@ function App() {
       setResumes([...cleanedLocalResumes.slice(-25)]);
       showMessage("✅ Resume saved successfully!", "success");
 
-      // Try to save to backend as well
-      const response = await axios.post(`${API_URL}/resumes`, resumeData, {
+      // Sync to backend in background; local save already succeeded.
+      axios.post(`${API_URL}/resumes`, resumeData, {
         headers: {
           "Content-Type": "application/json"
+        },
+        timeout: 6000
+      }).then((response) => {
+        if (response?.data?.success) {
+          showMessage("✅ Resume also saved to server!", "success");
         }
+      }).catch((error) => {
+        console.error("Background server sync failed:", error);
       });
 
-      if (response.data.success) {
-        showMessage("✅ Resume also saved to server!", "success");
-      }
       return newResume;
     } catch (error) {
       console.error("Error saving to server:", error);
