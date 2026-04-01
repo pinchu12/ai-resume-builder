@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import ResumeForm from "./Resume";
 import ResumePreview from "./ResumePreview";
 import axios from "axios";
@@ -12,6 +12,7 @@ const API_URL =
   (import.meta.env.PROD ? "/api" : "http://localhost:5000/api");
 
 function App() {
+  const navigate = useNavigate();
   const location = useLocation();
   const selectedTemplate = useTemplateStore((state) => state.selectedTemplate);
   const [data, setData] = useState({});
@@ -39,17 +40,24 @@ function App() {
     }
   };
 
+  const updatePageView = (view) => {
+    setCurrentPage(view);
+    const params = new URLSearchParams(location.search);
+    params.set("view", view);
+    navigate(`${location.pathname}?${params.toString()}`, { replace: true });
+  };
+
   const startNewResume = () => {
     setData({});
     setFormVersion((v) => v + 1);
-    setCurrentPage("builder");
+    updatePageView("builder");
     window.scrollTo({ top: 0, behavior: "smooth" });
     showMessage("New resume form is ready", "info", 2200);
   };
 
   const openSavedResume = (resume) => {
     setData(resume || {});
-    setCurrentPage("builder");
+    updatePageView("builder");
     showMessage("Saved resume loaded", "success", 2200);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -62,7 +70,7 @@ function App() {
 
   const openResumeInNewTab = (resume) => {
     if (!resume) return;
-    const appUrl = window.location.href;
+    const appUrl = `${window.location.origin}/editor?view=builder`;
     const escapeHtml = (value = "") =>
       String(value)
         .replaceAll("&", "&amp;")
@@ -162,7 +170,7 @@ function App() {
       cleanedLocalResumes.push(newResume);
       localStorage.setItem("resumes", JSON.stringify(cleanedLocalResumes.slice(-25)));
       setResumes([...cleanedLocalResumes.slice(-25)]);
-      setCurrentPage("saved");
+      updatePageView("saved");
       showMessage("✅ Resume saved successfully!", "success");
       openResumeInNewTab({ ...resumeData, id: newResume.id });
 
@@ -201,6 +209,14 @@ function App() {
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
+    const view = params.get("view");
+    if (view === "saved" || view === "builder") {
+      setCurrentPage(view);
+    }
+  }, [location.search]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
     const templateId = params.get("templateId");
     if (!templateId) return;
 
@@ -233,7 +249,7 @@ function App() {
         </button>
         {menuOpen && (
           <div className="menu-dropdown">
-            <button type="button" onClick={() => { setCurrentPage("saved"); setMenuOpen(false); }}>
+            <button type="button" onClick={() => { updatePageView("saved"); setMenuOpen(false); }}>
               Saved Resumes
             </button>
             <button type="button" onClick={() => { setMenuOpen(false); startNewResume(); }}>
@@ -260,7 +276,7 @@ function App() {
               <button type="button" className="builder-btn" onClick={startNewResume}>
                 + New Resume
               </button>
-              <button type="button" className="builder-btn" onClick={() => setCurrentPage("saved")}>
+              <button type="button" className="builder-btn" onClick={() => updatePageView("saved")}>
                 Saved Resumes ({resumes.length})
               </button>
             </div>
@@ -279,7 +295,7 @@ function App() {
         <div className="saved-page">
           <div className="saved-header">
             <h3>Saved Resumes</h3>
-            <button type="button" className="builder-btn" onClick={() => setCurrentPage("builder")}>
+            <button type="button" className="builder-btn" onClick={() => updatePageView("builder")}>
               Back to Create
             </button>
           </div>
