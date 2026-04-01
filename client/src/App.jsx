@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import ResumeForm from "./Resume";
 import ResumePreview from "./ResumePreview";
 import axios from "axios";
-import "./App.css";
 import { useTemplateStore } from "./store/templateStore";
 import { templates } from "./data/templates";
 
@@ -24,6 +23,9 @@ function App() {
   const [resumeMode, setResumeMode] = useState("general");
   const [formVersion, setFormVersion] = useState(0);
   const [activeTemplate, setActiveTemplate] = useState(null);
+
+  const actionBtnClass =
+    "inline-flex items-center justify-center rounded-xl bg-sky-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500";
 
   // Show message notification
   const showMessage = (text, type = "success", duration = 3000) => {
@@ -233,109 +235,200 @@ function App() {
   }, [location.search, selectedTemplate]);
 
   return (
-    <div className="app-container">
-      <header className="app-header">
-        <div className="header-row">
-          <div>
-            <h1>🎯 Professional Resume Builder</h1>
-            <p>Create and download your perfect resume in minutes</p>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-slate-50 px-3 py-4 text-slate-900 sm:px-4 lg:px-6 dark:bg-slate-950 dark:text-slate-100">
+      <div className="mx-auto w-full max-w-7xl">
+        <header className="mb-5 rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:px-6">
+          <div className="relative flex flex-wrap items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h1 className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-2xl">
+                Professional Resume Builder
+              </h1>
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                Create and download your perfect resume in minutes
+              </p>
+            </div>
 
-      <div className="menu-wrap menu-fixed">
-        <button type="button" className="menu-btn" onClick={() => setMenuOpen((v) => !v)}>
-          ⋮ Menu
-        </button>
-        {menuOpen && (
-          <div className="menu-dropdown">
-            <button type="button" onClick={() => { updatePageView("saved"); setMenuOpen(false); }}>
-              Saved Resumes
-            </button>
-            <button type="button" onClick={() => { setMenuOpen(false); startNewResume(); }}>
-              New Resume
-            </button>
-            <button type="button" onClick={() => selectModeOption("job")}>Resume for Job</button>
-            <button type="button" onClick={() => selectModeOption("education")}>Resume for Education</button>
-            <button type="button" onClick={() => selectModeOption("internship")}>Resume for Internship</button>
-            <button type="button" onClick={() => selectModeOption("general")}>General Resume</button>
+            <div className="relative shrink-0">
+              <button
+                type="button"
+                className="rounded-xl bg-sky-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                onClick={() => setMenuOpen((v) => !v)}
+                aria-label="Open resume options menu"
+                aria-expanded={menuOpen}
+              >
+                ⋮ Menu
+              </button>
+
+              {menuOpen && (
+                <div className="absolute right-0 top-full z-30 mt-2 w-56 max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900">
+                  <button
+                    type="button"
+                    className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-800"
+                    onClick={() => {
+                      updatePageView("saved");
+                      setMenuOpen(false);
+                    }}
+                  >
+                    Saved Resumes
+                  </button>
+                  <button
+                    type="button"
+                    className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-800"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      startNewResume();
+                    }}
+                  >
+                    New Resume
+                  </button>
+                  <button
+                    type="button"
+                    className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-800"
+                    onClick={() => selectModeOption("job")}
+                  >
+                    Resume for Job
+                  </button>
+                  <button
+                    type="button"
+                    className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-800"
+                    onClick={() => selectModeOption("education")}
+                  >
+                    Resume for Education
+                  </button>
+                  <button
+                    type="button"
+                    className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-800"
+                    onClick={() => selectModeOption("internship")}
+                  >
+                    Resume for Internship
+                  </button>
+                  <button
+                    type="button"
+                    className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-800"
+                    onClick={() => selectModeOption("general")}
+                  >
+                    General Resume
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </header>
+
+        {message && (
+          <div
+            className={`mb-4 rounded-xl px-4 py-3 text-sm font-medium shadow-sm ${
+              message.type === "success"
+                ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200"
+                : message.type === "error"
+                  ? "bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-200"
+                  : "bg-sky-100 text-sky-800 dark:bg-sky-900/40 dark:text-sky-200"
+            }`}
+          >
+            {message.text}
+          </div>
+        )}
+
+        {currentPage === "builder" ? (
+          <div className="grid grid-cols-1 gap-6 overflow-hidden lg:grid-cols-2">
+            <section className="min-w-0 w-full max-w-full overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-5">
+              <div className="mb-3 flex flex-wrap gap-2">
+                <button type="button" className={actionBtnClass} onClick={startNewResume}>
+                  + New Resume
+                </button>
+                <button type="button" className={actionBtnClass} onClick={() => updatePageView("saved")}>
+                  Saved Resumes ({resumes.length})
+                </button>
+              </div>
+
+              {activeTemplate && (
+                <div
+                  className="mb-3 rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-xs font-semibold text-sky-800 dark:border-sky-800 dark:bg-sky-900/30 dark:text-sky-100"
+                  aria-live="polite"
+                >
+                  Using Template: <strong>{activeTemplate.name}</strong>
+                </div>
+              )}
+
+              <ResumeForm key={formVersion} setData={saveResume} resumeMode={resumeMode} />
+            </section>
+
+            <section className="min-w-0 w-full max-w-full overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-5">
+              <div className="max-h-[80vh] overflow-auto pr-1">
+                <ResumePreview data={data} template={activeTemplate} />
+              </div>
+            </section>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-6 overflow-hidden lg:grid-cols-[360px_minmax(0,1fr)]">
+            <section className="min-w-0 w-full max-w-full overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <div className="mb-4 flex items-center justify-between gap-2">
+                <h3 className="text-base font-bold">Saved Resumes</h3>
+                <button type="button" className={actionBtnClass} onClick={() => updatePageView("builder")}>
+                  Back to Create
+                </button>
+              </div>
+
+              {resumes.length === 0 ? (
+                <p className="rounded-lg bg-slate-100 px-3 py-2 text-sm text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                  No saved resumes yet.
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {resumes
+                    .slice()
+                    .reverse()
+                    .map((resume, index) => (
+                      <div
+                        className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 p-3 dark:border-slate-700"
+                        key={resume.id || `${resume.name}-${index}`}
+                      >
+                        <div className="min-w-0">
+                          <strong className="block truncate text-sm text-slate-900 dark:text-slate-100">
+                            {resume.name || "Untitled"}
+                          </strong>
+                          <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+                            {resume.email || "No email"}
+                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            className={actionBtnClass}
+                            onClick={() => openSavedResume(resume)}
+                          >
+                            Open
+                          </button>
+                          <button
+                            type="button"
+                            className={actionBtnClass}
+                            onClick={() => openResumeInNewTab(resume)}
+                          >
+                            Open Page
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
+            </section>
+
+            <section className="min-w-0 w-full max-w-full overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <div className="max-h-[80vh] overflow-auto pr-1">
+                <ResumePreview data={data} template={activeTemplate} />
+              </div>
+            </section>
+          </div>
+        )}
+
+        {loading && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+            <div className="rounded-xl bg-white px-4 py-3 text-sm font-semibold text-slate-800 shadow-lg dark:bg-slate-900 dark:text-slate-100">
+              Processing...
+            </div>
           </div>
         )}
       </div>
-
-      {message && (
-        <div className={`message-notification message-${message.type}`}>
-          {message.text}
-        </div>
-      )}
-
-      {currentPage === "builder" ? (
-        <div className="app-content">
-          <div className="form-section">
-            <div className="builder-actions">
-              <button type="button" className="builder-btn" onClick={startNewResume}>
-                + New Resume
-              </button>
-              <button type="button" className="builder-btn" onClick={() => updatePageView("saved")}>
-                Saved Resumes ({resumes.length})
-              </button>
-            </div>
-            {activeTemplate && (
-              <div className="template-context-badge" aria-live="polite">
-                Using Template: <strong>{activeTemplate.name}</strong>
-              </div>
-            )}
-            <ResumeForm key={formVersion} setData={saveResume} resumeMode={resumeMode} />
-          </div>
-          <div className="preview-section">
-            <ResumePreview data={data} template={activeTemplate} />
-          </div>
-        </div>
-      ) : (
-        <div className="saved-page">
-          <div className="saved-header">
-            <h3>Saved Resumes</h3>
-            <button type="button" className="builder-btn" onClick={() => updatePageView("builder")}>
-              Back to Create
-            </button>
-          </div>
-          {resumes.length === 0 ? (
-            <p className="saved-empty">No saved resumes yet.</p>
-          ) : (
-            <div className="saved-list">
-              {resumes
-                .slice()
-                .reverse()
-                .map((resume, index) => (
-                  <div className="saved-item" key={resume.id || `${resume.name}-${index}`}>
-                    <div>
-                      <strong>{resume.name || "Untitled"}</strong>
-                      <p>{resume.email || "No email"}</p>
-                    </div>
-                    <div className="saved-item-actions">
-                      <button type="button" className="builder-btn" onClick={() => openSavedResume(resume)}>
-                        Open
-                      </button>
-                      <button type="button" className="builder-btn" onClick={() => openResumeInNewTab(resume)}>
-                        Open Page
-                      </button>
-                    </div>
-                  </div>
-                ))}
-            </div>
-          )}
-          <div className="saved-preview-wrap">
-            <ResumePreview data={data} template={activeTemplate} />
-          </div>
-        </div>
-      )}
-
-      {loading && (
-        <div className="loading">
-          <div className="spinner"></div>
-          <p>Processing...</p>
-        </div>
-      )}
     </div>
   );
 }
