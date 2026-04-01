@@ -80,6 +80,24 @@ export default function ResumePreview({ data, template }) {
     }
   };
 
+  const renderSections = (keys) =>
+    keys.map((key) => (
+      <div className={key === "summary" ? "resume-summary" : "resume-section"} key={key}>
+        <h3>{sectionContent[key].title}</h3>
+        {sectionContent[key].node}
+      </div>
+    ));
+
+  const category = template?.category || "Professional";
+  const templateClass =
+    category === "ATS Friendly"
+      ? "resume--ats"
+      : category === "Creative"
+        ? "resume--creative"
+        : category === "Minimal"
+          ? "resume--minimal"
+          : "resume--professional";
+
   const downloadPDF = async () => {
     const element = document.getElementById("resume");
     if (!element) return;
@@ -151,48 +169,111 @@ export default function ResumePreview({ data, template }) {
         </button>
       </div>
 
-      <div id="resume" className="resume" style={getTemplateTheme(template)}>
+      <div id="resume" className={`resume ${templateClass}`} style={getTemplateTheme(template)}>
         <style id="resume-style">
           {`.resume { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }`}
         </style>
 
-        <div className="resume-banner">
-          <span className="resume-icon">🧾</span>
-          <h1 className="resume-title">Resume</h1>
-          {template?.name && <span className="resume-template-name">{template.name}</span>}
-        </div>
+        {category === "Creative" ? (
+          <>
+            <div className="resume-banner">
+              <span className="resume-icon">🧾</span>
+              <h1 className="resume-title">Creative Resume</h1>
+              {template?.name && <span className="resume-template-name">{template.name}</span>}
+            </div>
+            <div className="resume-meta-badges">
+              {template?.category && <span className="meta-chip">{template.category}</span>}
+              {template?.atsScore && <span className="meta-chip">ATS {template.atsScore}</span>}
+              {template?.premium && <span className="meta-chip premium">Premium</span>}
+            </div>
+            <div className="resume-creative-grid">
+              <aside className="resume-creative-sidebar">
+                {data.photoPreview ? (
+                  <div className="resume-photo-wrap">
+                    <img src={data.photoPreview} alt="Profile" className="resume-photo" />
+                  </div>
+                ) : (
+                  <div className="resume-photo-wrap placeholder">No Photo</div>
+                )}
+                <h2>{data.name}</h2>
+                {data.phone && <p>📞 {data.phone}</p>}
+                {data.email && <p>✉️ {data.email}</p>}
+                {data.address && <p>📍 {data.address}</p>}
+                <div className="resume-section">
+                  <h3>Key Skills</h3>
+                  {sectionContent.skills.node}
+                </div>
+              </aside>
+              <main className="resume-creative-main">
+                <div className="resume-summary">
+                  <h3>{sectionContent.summary.title}</h3>
+                  {sectionContent.summary.node}
+                </div>
+                <div className="resume-section">
+                  <h3>{sectionContent.experience.title}</h3>
+                  {sectionContent.experience.node}
+                </div>
+                <div className="resume-section">
+                  <h3>{sectionContent.education.title}</h3>
+                  {sectionContent.education.node}
+                </div>
+              </main>
+            </div>
+          </>
+        ) : category === "Minimal" ? (
+          <>
+            <div className="resume-minimal-head">
+              <h2>{data.name}</h2>
+              <p>{[data.email, data.phone, data.address].filter(Boolean).join(" • ")}</p>
+              {template?.name && <span className="resume-template-name">{template.name}</span>}
+            </div>
+            {renderSections(sectionOrder)}
+          </>
+        ) : category === "ATS Friendly" ? (
+          <>
+            <div className="resume-ats-head">
+              <h2>{data.name}</h2>
+              <p>{data.email || ""} {data.phone ? `| ${data.phone}` : ""}</p>
+              {template?.atsScore && <span className="meta-chip">ATS {template.atsScore}</span>}
+            </div>
+            {renderSections(sectionOrder)}
+          </>
+        ) : (
+          <>
+            <div className="resume-banner">
+              <span className="resume-icon">🧾</span>
+              <h1 className="resume-title">Resume</h1>
+              {template?.name && <span className="resume-template-name">{template.name}</span>}
+            </div>
 
-        <div className="resume-meta-badges">
-          {template?.category && <span className="meta-chip">{template.category}</span>}
-          {template?.atsScore && <span className="meta-chip">ATS {template.atsScore}</span>}
-          {template?.premium && <span className="meta-chip premium">Premium</span>}
-        </div>
+            <div className="resume-meta-badges">
+              {template?.category && <span className="meta-chip">{template.category}</span>}
+              {template?.atsScore && <span className="meta-chip">ATS {template.atsScore}</span>}
+              {template?.premium && <span className="meta-chip premium">Premium</span>}
+            </div>
 
-        <div className="resume-header">
-          <div className="resume-left">
-            {data.photoPreview ? (
-              <div className="resume-photo-wrap">
-                <img src={data.photoPreview} alt="Profile" className="resume-photo" />
+            <div className="resume-header">
+              <div className="resume-left">
+                {data.photoPreview ? (
+                  <div className="resume-photo-wrap">
+                    <img src={data.photoPreview} alt="Profile" className="resume-photo" />
+                  </div>
+                ) : (
+                  <div className="resume-photo-wrap placeholder">No Photo</div>
+                )}
               </div>
-            ) : (
-              <div className="resume-photo-wrap placeholder">No Photo</div>
-            )}
-          </div>
 
-          <div className="resume-right">
-            <h2>{data.name}</h2>
-            {data.phone && <p>📞 {data.phone}</p>}
-            {data.email && <p>✉️ {data.email}</p>}
-            {data.address && <p>📍 {data.address}</p>}
-          </div>
-        </div>
+              <div className="resume-right">
+                <h2>{data.name}</h2>
+                {data.phone && <p>📞 {data.phone}</p>}
+                {data.email && <p>✉️ {data.email}</p>}
+                {data.address && <p>📍 {data.address}</p>}
+              </div>
+            </div>
 
-        {sectionOrder.map((key) => (
-          <div className={key === "summary" ? "resume-summary" : "resume-section"} key={key}>
-            <h3>{sectionContent[key].title}</h3>
-            {sectionContent[key].node}
-          </div>
-        ))}
+            {renderSections(sectionOrder)}
+          </>
+        )}
       </div>
     </div>
   );
