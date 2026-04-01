@@ -231,3 +231,39 @@
     min-height: 640px;
   }
 }
+
+@media (max-width: 640px) {
+  .preview-controls {
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+  }
+
+  .btn-download,
+  .btn-print {
+    width: 100%;
+    font-size: 15px;
+    padding: 12px 14px;
+  }
+
+  .resume {
+    padding: 14px;
+    border-radius: 10px;
+    min-height: auto;
+  }
+
+  .resume-right h2 {
+    font-size: 20px;
+  }
+
+  .resume-summary h3,
+  .resume-section h3 {
+    font-size: 14px;
+  }
+
+  .resume-summary p,
+  .resume-section p,
+  .resume-section ul {
+    font-size: 13px;
+  }
+}

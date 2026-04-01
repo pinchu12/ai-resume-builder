@@ -302,6 +302,40 @@ body {
   }
 }
 
+@media (max-width: 640px) {
+  .app-container {
+    border-radius: 12px;
+    margin: 0;
+  }
+
+  .app-content {
+    padding: 12px;
+    gap: 12px;
+    border-radius: 12px;
+  }
+
+  .app-header {
+    margin-bottom: 18px;
+  }
+
+  .app-header h1 {
+    font-size: 1.35rem;
+    line-height: 1.25;
+    margin-bottom: 8px;
+  }
+
+  .app-header p {
+    font-size: 0.82rem;
+  }
+
+  .message-notification {
+    width: calc(100% - 24px);
+    max-width: none;
+    top: 10px;
+    padding: 12px 14px;
+  }
+}
+
 /* SCROLLBAR STYLING */
 ::-webkit-scrollbar {
   width: 10px;
