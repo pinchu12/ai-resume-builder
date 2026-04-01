@@ -135,6 +135,30 @@
   color: var(--title, #334155);
 }
 
+.resume-meta-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 14px;
+}
+
+.meta-chip {
+  border-radius: 999px;
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
+  color: #3730a3;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 9px;
+  letter-spacing: 0.2px;
+}
+
+.meta-chip.premium {
+  background: #fff7ed;
+  border-color: #fdba74;
+  color: #9a3412;
+}
+
 .resume-header {
   display: flex;
   gap: 30px;
@@ -213,7 +237,7 @@
   margin: 0;
   color: #4a4f58;
   font-size: 14px;
-  line-height: 1.65;
+  line-height: 1.72;
 }
 
 .resume-section ul {

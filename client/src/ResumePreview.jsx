@@ -22,6 +22,64 @@ const getTemplateTheme = (template) => {
 };
 
 export default function ResumePreview({ data, template }) {
+  const sectionOrderMap = {
+    "ATS Friendly": ["experience", "skills", "education", "summary"],
+    Professional: ["summary", "experience", "skills", "education"],
+    Creative: ["summary", "skills", "experience", "education"],
+    Minimal: ["summary", "skills", "education", "experience"]
+  };
+
+  const sectionOrder = sectionOrderMap[template?.category] || sectionOrderMap.Professional;
+
+  const skillsList = data.skills
+    ? data.skills.split(",").map((skill) => skill.trim()).filter(Boolean)
+    : [];
+
+  const getSummary = () => {
+    if (data.summary?.trim()) return data.summary;
+
+    if (template?.category === "ATS Friendly") {
+      return "Results-driven candidate with clear role impact, measurable outcomes, and ATS-optimized achievements.";
+    }
+
+    if (template?.category === "Creative") {
+      return "Creative professional focused on combining visual thinking, problem solving, and strong execution across projects.";
+    }
+
+    if (template?.category === "Minimal") {
+      return "Focused professional with a clean and outcome-oriented work style, strong collaboration, and disciplined delivery.";
+    }
+
+    return "Detail-oriented professional with strong communication and execution skills, committed to delivering measurable results.";
+  };
+
+  const sectionContent = {
+    summary: {
+      title: "Professional Summary",
+      node: <p>{getSummary()}</p>
+    },
+    skills: {
+      title: "Key Skills",
+      node: (
+        <ul>
+          {skillsList.length > 0 ? (
+            skillsList.map((skill, index) => <li key={index}>{skill}</li>)
+          ) : (
+            <li>N/A</li>
+          )}
+        </ul>
+      )
+    },
+    experience: {
+      title: "Experience",
+      node: <p>{data.experience || "N/A"}</p>
+    },
+    education: {
+      title: "Education",
+      node: <p>{data.education || "N/A"}</p>
+    }
+  };
+
   const downloadPDF = async () => {
     const element = document.getElementById("resume");
     if (!element) return;
@@ -104,6 +162,12 @@ export default function ResumePreview({ data, template }) {
           {template?.name && <span className="resume-template-name">{template.name}</span>}
         </div>
 
+        <div className="resume-meta-badges">
+          {template?.category && <span className="meta-chip">{template.category}</span>}
+          {template?.atsScore && <span className="meta-chip">ATS {template.atsScore}</span>}
+          {template?.premium && <span className="meta-chip premium">Premium</span>}
+        </div>
+
         <div className="resume-header">
           <div className="resume-left">
             {data.photoPreview ? (
@@ -123,29 +187,12 @@ export default function ResumePreview({ data, template }) {
           </div>
         </div>
 
-        <div className="resume-summary">
-          <h3>Professional Summary</h3>
-          <p>{data.summary || "Detailed-oriented professional with strong technical and communication skills, eager to contribute to team success through hard work and organizational skills."}</p>
-        </div>
-
-        <div className="resume-section">
-          <h3>Key Skills</h3>
-          <ul>
-            {data.skills ? data.skills.split(",").map((skill, index) => (
-              <li key={index}>{skill.trim()}</li>
-            )) : <li>N/A</li>}
-          </ul>
-        </div>
-
-        <div className="resume-section">
-          <h3>Experience</h3>
-          <p>{data.experience || "N/A"}</p>
-        </div>
-
-        <div className="resume-section">
-          <h3>Education</h3>
-          <p>{data.education || "N/A"}</p>
-        </div>
+        {sectionOrder.map((key) => (
+          <div className={key === "summary" ? "resume-summary" : "resume-section"} key={key}>
+            <h3>{sectionContent[key].title}</h3>
+            {sectionContent[key].node}
+          </div>
+        ))}
       </div>
     </div>
   );
