@@ -56,6 +56,7 @@ function App() {
 
   const openResumeInNewTab = (resume) => {
     if (!resume) return;
+    const appUrl = window.location.href;
     const escapeHtml = (value = "") =>
       String(value)
         .replaceAll("&", "&amp;")
@@ -78,6 +79,8 @@ function App() {
         <style>
           body{font-family:Arial,sans-serif;background:#f5f7fb;padding:20px;margin:0;color:#111827}
           .card{max-width:860px;margin:0 auto;background:#fff;border:1px solid #dbe4ef;border-radius:12px;padding:20px}
+          .top-actions{max-width:860px;margin:0 auto 12px;display:flex;justify-content:flex-end;gap:8px}
+          .top-actions a{background:#1f6feb;color:#fff;text-decoration:none;padding:8px 12px;border-radius:8px;font-weight:600}
           h1,h2,h3{margin:0 0 10px}
           .meta{color:#4b5563;margin-bottom:14px}
           .section{margin:16px 0}
@@ -85,6 +88,9 @@ function App() {
         </style>
       </head>
       <body>
+        <div class="top-actions">
+          <a href="${escapeHtml(appUrl)}">Back to Builder</a>
+        </div>
         <div class="card">
           ${resume.photoPreview ? `<img class="photo" src="${resume.photoPreview}" alt="Photo" />` : ""}
           <h1>${escapeHtml(resume.name || "Untitled")}</h1>
