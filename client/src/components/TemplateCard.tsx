@@ -70,7 +70,7 @@ function TemplateCard({
           {isFavorite ? "★" : "☆"}
         </button>
 
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-900/70 to-transparent p-3 opacity-0 transition group-hover:opacity-100">
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-linear-to-t from-slate-900/70 to-transparent p-3 opacity-0 transition group-hover:opacity-100">
           <p className="text-xs text-slate-100">{template.description}</p>
         </div>
       </div>

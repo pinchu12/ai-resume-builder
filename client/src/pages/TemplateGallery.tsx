@@ -99,7 +99,7 @@ function TemplateGalleryPage() {
   }, [navigate, setSelectedTemplate]);
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-slate-100 px-3 py-6 text-slate-900 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 dark:text-slate-100">
+    <main className="min-h-screen bg-linear-to-br from-sky-50 via-white to-slate-100 px-3 py-6 text-slate-900 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 dark:text-slate-100">
       <section className="mx-auto max-w-7xl">
         <header className="mb-6">
           <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-sky-600 dark:text-sky-400">

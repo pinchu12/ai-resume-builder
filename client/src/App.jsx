@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import ResumeForm from "./Resume";
 import ResumePreview from "./ResumePreview";
@@ -123,7 +123,7 @@ function App() {
   };
 
   // Fetch resumes from backend
-  const fetchResumes = async () => {
+  const fetchResumes = useCallback(async () => {
     setLoading(true);
     try {
       // Load from localStorage first
@@ -146,7 +146,7 @@ function App() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // Save resume to backend
   const saveResume = async (resumeData) => {
@@ -205,7 +205,7 @@ function App() {
     if (localResumes.length > 0) {
       setData(localResumes[localResumes.length - 1]);
     }
-  }, []);
+  }, [fetchResumes]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
