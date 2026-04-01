@@ -178,6 +178,10 @@
   cursor: pointer;
 }
 
+.mobile-file-input {
+  display: none;
+}
+
 .upload-area {
   display: flex;
   flex-direction: column;
@@ -206,6 +210,18 @@
   }
   .upload-icon {
     font-size: 60px;
+  }
+
+  .mobile-file-input {
+    display: block;
+    width: 100%;
+    margin-top: 12px;
+    padding: 10px;
+    border: 1px solid #3498db;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #000000;
+    font-size: 14px;
   }
 }
 

@@ -148,6 +148,13 @@ export default function ResumeForm({ setData }) {
                 <p>Click to upload photo</p>
                 <p className="upload-hint">JPG, PNG, GIF (Max 5MB)</p>
               </div>
+              <input
+                type="file"
+                accept="image/*"
+                capture="user"
+                onChange={handlePhotoChange}
+                className="mobile-file-input"
+              />
             </label>
           )}
         </div>
