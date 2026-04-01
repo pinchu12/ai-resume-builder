@@ -2,7 +2,26 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import "./ResumePreview.css";
 
-export default function ResumePreview({ data }) {
+const getTemplateTheme = (template) => {
+  if (!template) {
+    return {
+      "--accent": "#3498db",
+      "--soft-accent": "rgba(52, 152, 219, 0.2)",
+      "--title": "#2c3e50"
+    };
+  }
+
+  const map = {
+    "ATS Friendly": { "--accent": "#0ea5e9", "--soft-accent": "rgba(14, 165, 233, 0.2)", "--title": "#0f172a" },
+    Professional: { "--accent": "#2563eb", "--soft-accent": "rgba(37, 99, 235, 0.2)", "--title": "#1e293b" },
+    Creative: { "--accent": "#7c3aed", "--soft-accent": "rgba(124, 58, 237, 0.2)", "--title": "#3b0764" },
+    Minimal: { "--accent": "#334155", "--soft-accent": "rgba(51, 65, 85, 0.2)", "--title": "#111827" }
+  };
+
+  return map[template.category] || map.Professional;
+};
+
+export default function ResumePreview({ data, template }) {
   const downloadPDF = async () => {
     const element = document.getElementById("resume");
     if (!element) return;
@@ -74,7 +93,7 @@ export default function ResumePreview({ data }) {
         </button>
       </div>
 
-      <div id="resume" className="resume">
+      <div id="resume" className="resume" style={getTemplateTheme(template)}>
         <style id="resume-style">
           {`.resume { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }`}
         </style>
@@ -82,6 +101,7 @@ export default function ResumePreview({ data }) {
         <div className="resume-banner">
           <span className="resume-icon">🧾</span>
           <h1 className="resume-title">Resume</h1>
+          {template?.name && <span className="resume-template-name">{template.name}</span>}
         </div>
 
         <div className="resume-header">

@@ -5,6 +5,7 @@ import ResumePreview from "./ResumePreview";
 import axios from "axios";
 import "./App.css";
 import { useTemplateStore } from "./store/templateStore";
+import { templates } from "./data/templates";
 
 const API_URL =
   import.meta.env.VITE_API_URL ||
@@ -21,6 +22,7 @@ function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [resumeMode, setResumeMode] = useState("general");
   const [formVersion, setFormVersion] = useState(0);
+  const [activeTemplate, setActiveTemplate] = useState(null);
 
   // Show message notification
   const showMessage = (text, type = "success", duration = 3000) => {
@@ -200,8 +202,17 @@ function App() {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const templateId = params.get("templateId");
-    if (templateId && selectedTemplate && selectedTemplate.id === templateId) {
-      showMessage(`Template selected: ${selectedTemplate.name}`, "info", 2500);
+    if (!templateId) return;
+
+    // Prefer store template, fallback to static data by templateId for hard reloads.
+    const resolvedTemplate =
+      (selectedTemplate && selectedTemplate.id === templateId && selectedTemplate) ||
+      templates.find((item) => item.id === templateId) ||
+      null;
+
+    if (resolvedTemplate) {
+      setActiveTemplate(resolvedTemplate);
+      showMessage(`Template selected: ${resolvedTemplate.name}`, "info", 2500);
     }
   }, [location.search, selectedTemplate]);
 
@@ -253,10 +264,15 @@ function App() {
                 Saved Resumes ({resumes.length})
               </button>
             </div>
+            {activeTemplate && (
+              <div className="template-context-badge" aria-live="polite">
+                Using Template: <strong>{activeTemplate.name}</strong>
+              </div>
+            )}
             <ResumeForm key={formVersion} setData={saveResume} resumeMode={resumeMode} />
           </div>
           <div className="preview-section">
-            <ResumePreview data={data} />
+            <ResumePreview data={data} template={activeTemplate} />
           </div>
         </div>
       ) : (
@@ -293,7 +309,7 @@ function App() {
             </div>
           )}
           <div className="saved-preview-wrap">
-            <ResumePreview data={data} />
+            <ResumePreview data={data} template={activeTemplate} />
           </div>
         </div>
       )}
